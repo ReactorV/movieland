@@ -3,7 +3,7 @@ import moviesSlice from './moviesSlice'
 import starredSlice from './starredSlice'
 import watchLaterSlice from './watchLaterSlice'
 
-const store = configureStore({
+export const store = configureStore({
     reducer: {
         movies: moviesSlice.reducer,
         starred: starredSlice.reducer,
@@ -11,4 +11,5 @@ const store = configureStore({
     },
 })
 
-export default store
+export type AppDispatch = typeof store.dispatch;
+export type AppState = ReturnType<typeof store.getState>;

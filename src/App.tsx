@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Routes, Route, createSearchParams, useSearchParams, useNavigate } from "react-router-dom"
-import { useDispatch, useSelector } from 'react-redux'
+
 import 'reactjs-popup/dist/index.css'
 import { fetchMovies } from './data/moviesSlice'
+import { useAppDispatch, useAppSelector } from './data/hooks'
 import { ENDPOINT_SEARCH, ENDPOINT_DISCOVER, ENDPOINT, API_KEY } from './constants'
 import Header from './components/Header'
 import Movies from './components/Movies'
@@ -12,10 +13,9 @@ import YouTubePlayer from './components/YoutubePlayer'
 import './app.scss'
 
 const App = () => {
-
-  const state = useSelector((state) => state)
+  const state = useAppSelector((state) => state)
   const { movies } = state  
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const [searchParams, setSearchParams] = useSearchParams()
   const searchQuery = searchParams.get('search')
   const [videoKey, setVideoKey] = useState()
