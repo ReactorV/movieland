@@ -18,7 +18,7 @@ const App = () => {
   const dispatch = useAppDispatch()
   const [searchParams, setSearchParams] = useSearchParams()
   const searchQuery = searchParams.get('search')
-  const [videoKey, setVideoKey] = useState()
+  const [videoKey, setVideoKey] = useState(null)
   const [isOpen, setOpen] = useState(false)
   const navigate = useNavigate()
   

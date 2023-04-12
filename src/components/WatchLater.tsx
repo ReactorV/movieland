@@ -1,15 +1,16 @@
-import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import watchLaterSlice from '../data/watchLaterSlice'
+import { useAppDispatch, useAppSelector } from '../data/hooks'
 import Movie from './Movie'
+
 import '../styles/starred.scss'
 
-const WatchLater = ({viewTrailer}) => {
+const WatchLater = ({ viewTrailer }) => {
 
-    const state = useSelector((state) => state)
+    const state = useAppSelector((state) => state)
     const { watchLater } = state
-    const { remveAllWatchLater } = watchLaterSlice.actions
-    const dispatch = useDispatch()
+    const { removeAllWatchLater } = watchLaterSlice.actions
+    const dispatch = useAppDispatch()
 
   return (
     <div className="starred" data-testid="watch-later-div">
@@ -26,7 +27,7 @@ const WatchLater = ({viewTrailer}) => {
         </div>
 
         <footer className="text-center">
-          <button className="btn btn-primary" onClick={() => dispatch(remveAllWatchLater())}>Empty list</button>
+          <button className="btn btn-primary" onClick={() => dispatch(removeAllWatchLater())}>Empty list</button>
         </footer>
       </div>)}
 

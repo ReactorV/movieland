@@ -1,14 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
-import { WatchLaterState, Movie } from "../types"
+import { IWatchLaterState, IMovie } from "../types"
+
+const initialState: IWatchLaterState = {
+    watchLaterMovies: []
+}
 
 const watchLaterSlice = createSlice({
     name: 'watch-later',
-    initialState: {
-        watchLaterMovies: []
-    } as WatchLaterState,
+    initialState,
     reducers: {
-        addToWatchLater: (state, action: PayloadAction<Movie>) => {
+        addToWatchLater: (state, action: PayloadAction<Partial<IMovie>>) => {
             state.watchLaterMovies = [action.payload, ...state.watchLaterMovies];
         },
         removeFromWatchLater: (state, action) => {

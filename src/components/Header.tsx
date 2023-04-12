@@ -1,11 +1,17 @@
 import { Link, NavLink } from "react-router-dom"
-import { useSelector } from 'react-redux'
 
+import { useAppSelector } from '../data/hooks'
 import '../styles/header.scss'
 
-const Header = ({ searchMovies }) => {
+interface Props {
+    searchMovies: (query: string) => void
+    searchParams?: URLSearchParams
+    setSearchParams: (params: URLSearchParams) => void
+}
+
+const Header = ({ searchMovies }: Props) => {
   
-  const { starredMovies } = useSelector((state) => state.starred)
+  const { starredMovies } = useAppSelector((state) => state.starred)
 
   return (
     <header>
@@ -32,7 +38,7 @@ const Header = ({ searchMovies }) => {
       <div className="input-group rounded">
         <Link to="/" onClick={(e) => searchMovies('')} className="search-link" >
           <input type="search" data-testid="search-movies"
-            onKeyUp={(e) => searchMovies(e.target.value)} 
+            onKeyUp={(e) => searchMovies((e.target as HTMLInputElement).value)}
             className="form-control rounded" 
             placeholder="Search movies..." 
             aria-label="Search movies" 

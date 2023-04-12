@@ -1,15 +1,15 @@
-import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../data/hooks'
 import starredSlice from '../data/starredSlice'
 import Movie from './Movie'
 import '../styles/starred.scss'
 
 const Starred = ({viewTrailer}) => {
 
-    const state = useSelector((state) => state)
+    const state = useAppSelector((state) => state)
     const { starred } = state
     const { clearAllStarred } = starredSlice.actions
-    const dispatch = useDispatch()
+    const dispatch = useAppDispatch()
 
   return (
     <div className="starred" data-testid="starred">
