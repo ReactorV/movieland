@@ -1,13 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit"
-import moviesSlice from './moviesSlice'
-import starredSlice from './starredSlice'
-import watchLaterSlice from './watchLaterSlice'
+import { moviesSliceReducer } from './moviesSlice'
+import { starredSliceReducer } from './starredSlice'
+import { watchLaterSliceReducer} from './watchLaterSlice'
 
 export const store = configureStore({
     reducer: {
-        movies: moviesSlice.reducer,
-        starred: starredSlice.reducer,
-        watchLater: watchLaterSlice.reducer
+        movies: moviesSliceReducer,
+        starred: starredSliceReducer,
+        watchLater: watchLaterSliceReducer
     },
 })
 

@@ -23,4 +23,10 @@ const watchLaterSlice = createSlice({
     },
 })
 
-export default watchLaterSlice
+export const {
+    addToWatchLater,
+    removeFromWatchLater,
+    removeAllWatchLater,
+} = watchLaterSlice.actions
+
+export const watchLaterSliceReducer = watchLaterSlice.reducer

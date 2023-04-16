@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Routes, Route, createSearchParams, useSearchParams, useNavigate } from "react-router-dom"
 
+import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css'
 import { fetchMovies } from './data/moviesSlice'
+import { getMoviesSelector } from './data/selectors'
 import { useAppDispatch, useAppSelector } from './data/hooks'
 import { ENDPOINT_SEARCH, ENDPOINT_DISCOVER, ENDPOINT, API_KEY } from './constants'
 import Header from './components/Header'
@@ -13,8 +15,7 @@ import YouTubePlayer from './components/YoutubePlayer'
 import './app.scss'
 
 const App = () => {
-  const state = useAppSelector((state) => state)
-  const { movies } = state  
+  const movies = useAppSelector(getMoviesSelector)
   const dispatch = useAppDispatch()
   const [searchParams, setSearchParams] = useSearchParams()
   const searchQuery = searchParams.get('search')
@@ -22,7 +23,7 @@ const App = () => {
   const [isOpen, setOpen] = useState(false)
   const navigate = useNavigate()
   
-  const closeModal = () => setOpen(false)
+  const handleCloseClick = () => setOpen(false)
   
   const closeCard = () => {
 
@@ -43,14 +44,6 @@ const App = () => {
     getSearchResults(query)
   }
 
-  const getMovies = () => {
-    if (searchQuery) {
-        dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=`+searchQuery))
-    } else {
-        dispatch(fetchMovies(ENDPOINT_DISCOVER))
-    }
-  }
-
   const viewTrailer = (movie) => {
     getMovie(movie.id)
     if (!videoKey) setOpen(true)
@@ -63,6 +56,7 @@ const App = () => {
     setVideoKey(null)
     const videoData = await fetch(URL)
       .then((response) => response.json())
+      .catch(error => console.error(error))
 
     if (videoData.videos && videoData.videos.results.length) {
       const trailer = videoData.videos.results.find(vid => vid.type === 'Trailer')
@@ -71,20 +65,29 @@ const App = () => {
   }
 
   useEffect(() => {
-    getMovies()
-  }, [])
+    if (searchQuery) {
+      dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=`+searchQuery))
+    } else {
+      dispatch(fetchMovies(ENDPOINT_DISCOVER))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery])
 
   return (
     <div className="App">
       <Header searchMovies={searchMovies} searchParams={searchParams} setSearchParams={setSearchParams} />
 
       <div className="container">
-        {videoKey ? (
-          <YouTubePlayer
-            videoKey={videoKey}
-          />
-        ) : (
-          <div style={{padding: "30px"}}><h6>no trailer available. Try another movie</h6></div>
+        {isOpen && (
+          <Popup open={isOpen} closeOnDocumentClick onClose={handleCloseClick} position="right center">
+            <div>
+              {videoKey ? (
+                  <YouTubePlayer videoKey={videoKey} />
+              ) : (
+                  <div style={{padding: "30px"}}><h6>no trailer available. Try another movie</h6></div>
+              )}
+            </div>
+          </Popup>
         )}
 
         <Routes>

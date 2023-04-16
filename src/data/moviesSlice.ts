@@ -27,4 +27,4 @@ const moviesSlice = createSlice({
     }
 })
 
-export default moviesSlice
+export const moviesSliceReducer = moviesSlice.reducer

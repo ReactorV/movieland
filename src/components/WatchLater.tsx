@@ -1,15 +1,14 @@
 import { Link } from 'react-router-dom'
-import watchLaterSlice from '../data/watchLaterSlice'
+
+import { removeAllWatchLater } from '../data/watchLaterSlice'
 import { useAppDispatch, useAppSelector } from '../data/hooks'
+import { getWatchLaterMovies } from '../data/selectors'
 import Movie from './Movie'
 
 import '../styles/starred.scss'
 
 const WatchLater = ({ viewTrailer }) => {
-
-    const state = useAppSelector((state) => state)
-    const { watchLater } = state
-    const { removeAllWatchLater } = watchLaterSlice.actions
+    const watchLater = useAppSelector(getWatchLaterMovies)
     const dispatch = useAppDispatch()
 
   return (

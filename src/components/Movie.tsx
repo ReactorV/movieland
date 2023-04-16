@@ -1,10 +1,11 @@
 import { MouseEvent } from 'react'
 import { useAppDispatch, useAppSelector } from '../data/hooks'
-import starredSlice from '../data/starredSlice'
-import watchLaterSlice from '../data/watchLaterSlice'
+import { starMovie, unstarMovie } from '../data/starredSlice'
+import { addToWatchLater, removeFromWatchLater } from '../data/watchLaterSlice'
+import { getStarredMovies, getWatchLaterMovies } from '../data/selectors'
 // @ts-ignore
 import placeholder from '../assets/not-found-500X750.jpeg'
-import { IMovie } from "../types";
+import { IMovie } from '../types';
 
 interface Props {
     movie: Partial<IMovie>
@@ -13,19 +14,13 @@ interface Props {
 }
 
 const Movie = ({ movie, viewTrailer, closeCard }: Props) => {
-
-    const state = useAppSelector((state) => state)
-    const { starred, watchLater } = state
-    const { starMovie, unstarMovie } = starredSlice.actions
-    const { addToWatchLater, removeFromWatchLater } = watchLaterSlice.actions
-
+    const starred = useAppSelector(getStarredMovies)
+    const watchLater = useAppSelector(getWatchLaterMovies)
     const dispatch = useAppDispatch()
 
     const myClickHandler = (event) => {
-        if (!event) var e = window.event
-        e.cancelBubble = true
-        if (e.stopPropagation) e.stopPropagation()
-        e.target.parentElement.parentElement.classList.remove('opened')
+       event.stopPropagation()
+       event.target.parentElement.parentElement.classList.remove('opened')
     }
 
     return (
