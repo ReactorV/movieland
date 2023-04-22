@@ -79,15 +79,18 @@ const App = () => {
 
       <div className="container">
         {isOpen && (
-          <Popup open={isOpen} closeOnDocumentClick onClose={handleCloseClick} position="right center">
-            <div>
-              {videoKey ? (
-                  <YouTubePlayer videoKey={videoKey} />
-              ) : (
-                  <div style={{padding: "30px"}}><h6>no trailer available. Try another movie</h6></div>
-              )}
-            </div>
-          </Popup>
+            <Popup open={isOpen} closeOnDocumentClick={false} onClose={handleCloseClick}>
+              <div className="player-container">
+                <button className="btn-close" onClick={handleCloseClick} />
+                {videoKey ? (
+                    <YouTubePlayer videoKey={videoKey} />
+                ) : (
+                  <div className="player-plug">
+                    <h6>No trailer available. Try another movie</h6>
+                  </div>
+                )}
+              </div>
+            </Popup>
         )}
 
         <Routes>
