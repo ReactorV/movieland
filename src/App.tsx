@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route, createSearchParams, useSearchParams, useNavigate } from "react-router-dom"
+import { Routes, Route, createSearchParams, useSearchParams, useNavigate } from 'react-router-dom'
 
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css'
@@ -18,14 +18,19 @@ import './app.scss'
 const App = () => {
   const movies = useAppSelector(getMoviesSelector)
   const dispatch = useAppDispatch()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const searchQuery = searchParams.get('search')
+
   const [videoKey, setVideoKey] = useState(null)
   const [isOpen, setOpen] = useState(false)
+
   const navigate = useNavigate()
-  
+  const [searchParams, setSearchParams] = useSearchParams()
+  const searchQuery = searchParams.get('search')
+
+  const [debouncedFetchMovies, currentPage, observer] = useInfiniteScroll(fetchMovies, movies?.fetchStatus);
+  console.log("movies :", movies);
+  console.log("currentPage :", currentPage);
   const handleCloseClick = () => setOpen(false)
-  
+
   const closeCard = () => {
 
   }
@@ -44,8 +49,6 @@ const App = () => {
     navigate('/')
     getSearchResults(query)
   }
-
-  const [data, isLoading, debouncedFetchDataPage, currentPage] = useInfiniteScroll(dispatch(fetchMovies));
 
   const viewTrailer = (movie) => {
     getMovie(movie.id)
@@ -69,14 +72,14 @@ const App = () => {
 
   useEffect(() => {
     if (searchQuery) {
-      debouncedFetchDataPage(`${ENDPOINT_SEARCH}&query=${searchQuery}&page=${currentPage}`)
-      // dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=`+searchQuery))
+      // @ts-ignore
+      debouncedFetchMovies(`${ENDPOINT_SEARCH}&query=${searchQuery}&page=${currentPage}`)
     } else {
-      debouncedFetchDataPage(`${ENDPOINT_SEARCH}&query=${searchQuery}&page=${currentPage}`)
-      // dispatch(fetchMovies(ENDPOINT_DISCOVER))
+      // @ts-ignore
+      debouncedFetchMovies(`${ENDPOINT_DISCOVER}&page=${currentPage}`)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery])
+  }, [searchQuery, currentPage])
 
   return (
     <div className="App">
@@ -99,7 +102,7 @@ const App = () => {
         )}
 
         <Routes>
-          <Route path="/" element={<Movies movies={movies} viewTrailer={viewTrailer} closeCard={closeCard} />} />
+          <Route path="/" element={<Movies movies={movies} viewTrailer={viewTrailer} closeCard={closeCard} observer={observer}/>} />
           <Route path="/starred" element={<Starred viewTrailer={viewTrailer} />} />
           <Route path="/watch-later" element={<WatchLater viewTrailer={viewTrailer} />} />
           <Route path="*" element={<h1 className="not-found">Page Not Found</h1>} />

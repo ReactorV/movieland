@@ -1,10 +1,10 @@
 import Movie from './Movie'
 import '../styles/movies.scss'
 
-const Movies = ({ movies, viewTrailer, closeCard }) => {
+const Movies = ({ movies, viewTrailer, closeCard, observer }) => {
 
     return (
-        <div data-testid="movies">
+        <div data-testid="movies" style={{ paddingBottom: '60px' }}>
             {movies.movies.results?.map((movie) => {
                 return (
                     <Movie 
@@ -15,6 +15,7 @@ const Movies = ({ movies, viewTrailer, closeCard }) => {
                     />
                 )
             })}
+            <div ref={observer} id="end-of-movies-list" style={{ paddingBottom: '20px' }} />
         </div>
     )
 }

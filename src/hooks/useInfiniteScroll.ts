@@ -1,41 +1,30 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { throttle, debounce } from "lodash";
+import { useAppDispatch } from "../data/hooks";
 
 type FetchFunction<T> = (url: string) => Promise<T> | void;
 
-export const useInfiniteScroll = (fetchData: FetchFunction<string>) => {
-    const [data, setData] = useState<[]>([]);
+export const useInfiniteScroll = (fetchData, isLoading) => {
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const observer = useRef<IntersectionObserver>();
-
-    const fetchDataPage = useCallback(async (url: string) => {
-        try {
-            setIsLoading(true);
-            const newData = await fetchData(url);
-            setData((prevData) => [...prevData, newData]);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [fetchData]);
-
+    const dispatch = useAppDispatch()
+console.log("currentPage :", currentPage)
     const debouncedFetchDataPage = useCallback(
-        debounce(fetchDataPage, 500),
-        [fetchDataPage]
+        (url: string) => dispatch(fetchData(url)),
+        [fetchData]
     );
+    console.log("fetchData :", fetchData.pending)
 
-    const handleObserver = useCallback(
-        throttle((entries: IntersectionObserverEntry[]) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting && !isLoading) {
-                    setCurrentPage((prev) => prev + 1);
-                }
-            });
-        }, 500),
-        [isLoading]
-    );
+    const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+        return entries.forEach((entry) => {
+            console.log("entry.isIntersecting :", entry.isIntersecting)
+            console.log("fetchData.fetchStatus :",fetchData.fetchStatus)
+            if (entry.isIntersecting && (isLoading && isLoading !== 'loading')) {
+                setCurrentPage((prev) => prev + 1);
+            }
+        });
+    }, [fetchData?.fetchStatus]);
+
 
     useEffect(() => {
         observer.current = new IntersectionObserver(handleObserver, {
@@ -44,6 +33,12 @@ export const useInfiniteScroll = (fetchData: FetchFunction<string>) => {
             threshold: 1.0,
         });
 
+        const endOfList = document.querySelector("#end-of-movies-list");
+
+        if (observer.current && endOfList) {
+            observer.current.observe(endOfList);
+        }
+
         return () => {
             if (observer.current) {
                 observer.current?.disconnect()
@@ -51,30 +46,5 @@ export const useInfiniteScroll = (fetchData: FetchFunction<string>) => {
         };
     }, [handleObserver]);
 
-    /*useEffect(() => {
-        debouncedFetchDataPage(currentPage);
-    }, [currentPage, debouncedFetchDataPage]);*/
-
-    useEffect(() => {
-        const currentObserver = observer.current;
-        if (currentObserver) {
-            currentObserver.disconnect();
-        }
-        setCurrentPage(1);
-        setData([]);
-        setIsLoading(false);
-    }, []);
-
-    useEffect(() => {
-        if (observer.current) {
-            observer.current?.observe(document.querySelector("#end-of-list")!);
-        }
-        return () => {
-            if (observer.current) {
-                observer.current?.disconnect();
-            }
-        };
-    }, []);
-
-    return [data, isLoading, debouncedFetchDataPage, currentPage];
+    return [debouncedFetchDataPage, currentPage, observer];
 };
