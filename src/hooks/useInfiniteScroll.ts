@@ -1,18 +1,18 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { throttle, debounce } from "lodash";
 
-type FetchFunction<T> = (page: number) => Promise<T>;
+type FetchFunction<T> = (url: string) => Promise<T> | void;
 
-export const useInfiniteScroll = <T>(fetchData: FetchFunction<T>): [T[], boolean] => {
-    const [data, setData] = useState<T[]>([]);
+export const useInfiniteScroll = (fetchData: FetchFunction<string>) => {
+    const [data, setData] = useState<[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const observer = useRef<IntersectionObserver>();
 
-    const fetchDataPage = useCallback(async (page: number) => {
+    const fetchDataPage = useCallback(async (url: string) => {
         try {
             setIsLoading(true);
-            const newData = await fetchData(page);
+            const newData = await fetchData(url);
             setData((prevData) => [...prevData, newData]);
         } catch (error) {
             console.error(error);
@@ -46,14 +46,14 @@ export const useInfiniteScroll = <T>(fetchData: FetchFunction<T>): [T[], boolean
 
         return () => {
             if (observer.current) {
-                observer.current.disconnect();
+                observer.current?.disconnect()
             }
         };
     }, [handleObserver]);
 
-    useEffect(() => {
+    /*useEffect(() => {
         debouncedFetchDataPage(currentPage);
-    }, [currentPage, debouncedFetchDataPage]);
+    }, [currentPage, debouncedFetchDataPage]);*/
 
     useEffect(() => {
         const currentObserver = observer.current;
@@ -67,14 +67,14 @@ export const useInfiniteScroll = <T>(fetchData: FetchFunction<T>): [T[], boolean
 
     useEffect(() => {
         if (observer.current) {
-            observer.current.observe(document.querySelector("#end-of-list")!);
+            observer.current?.observe(document.querySelector("#end-of-list")!);
         }
         return () => {
             if (observer.current) {
-                observer.current.disconnect();
+                observer.current?.disconnect();
             }
         };
     }, []);
 
-    return [data, isLoading];
+    return [data, isLoading, debouncedFetchDataPage, currentPage];
 };

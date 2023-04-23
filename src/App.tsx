@@ -12,6 +12,7 @@ import Movies from './components/Movies'
 import Starred from './components/Starred'
 import WatchLater from './components/WatchLater'
 import YouTubePlayer from './components/YoutubePlayer'
+import { useInfiniteScroll } from './hooks';
 import './app.scss'
 
 const App = () => {
@@ -44,6 +45,8 @@ const App = () => {
     getSearchResults(query)
   }
 
+  const [data, isLoading, debouncedFetchDataPage, currentPage] = useInfiniteScroll(dispatch(fetchMovies));
+
   const viewTrailer = (movie) => {
     getMovie(movie.id)
     if (!videoKey) setOpen(true)
@@ -58,7 +61,7 @@ const App = () => {
       .then((response) => response.json())
       .catch(error => console.error(error))
 
-    if (videoData.videos && videoData.videos.results.length) {
+    if (videoData?.videos?.results.length) {
       const trailer = videoData.videos.results.find(vid => vid.type === 'Trailer')
       setVideoKey(trailer ? trailer.key : videoData.videos.results[0].key)
     }
@@ -66,9 +69,11 @@ const App = () => {
 
   useEffect(() => {
     if (searchQuery) {
-      dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=`+searchQuery))
+      debouncedFetchDataPage(`${ENDPOINT_SEARCH}&query=${searchQuery}&page=${currentPage}`)
+      // dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=`+searchQuery))
     } else {
-      dispatch(fetchMovies(ENDPOINT_DISCOVER))
+      debouncedFetchDataPage(`${ENDPOINT_SEARCH}&query=${searchQuery}&page=${currentPage}`)
+      // dispatch(fetchMovies(ENDPOINT_DISCOVER))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery])
