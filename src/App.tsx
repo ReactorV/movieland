@@ -14,11 +14,12 @@ import WatchLater from './components/WatchLater'
 import YouTubePlayer from './components/YoutubePlayer'
 import { useInfiniteScroll } from './hooks';
 import './app.scss'
+import {IMovie} from "./types";
 
 const App = () => {
-  const movies = useAppSelector(getMoviesSelector)
+  const { movies, fetchStatus } = useAppSelector(getMoviesSelector)
   const dispatch = useAppDispatch()
-
+console.log("movies :", movies)
   const [videoKey, setVideoKey] = useState(null)
   const [isOpen, setOpen] = useState(false)
 
@@ -26,14 +27,12 @@ const App = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const searchQuery = searchParams.get('search')
 
-  const [debouncedFetchMovies, currentPage, observer] = useInfiniteScroll(fetchMovies, movies?.fetchStatus);
+  const [debouncedFetchMovies, currentPage, observerRef] = useInfiniteScroll(fetchMovies, fetchStatus);
   console.log("movies :", movies);
   console.log("currentPage :", currentPage);
   const handleCloseClick = () => setOpen(false)
 
-  const closeCard = () => {
-
-  }
+  const closeCard = () => {}
 
   const getSearchResults = (query) => {
     if (query !== '') {
@@ -50,7 +49,7 @@ const App = () => {
     getSearchResults(query)
   }
 
-  const viewTrailer = (movie) => {
+  const viewTrailer = (movie: Partial<IMovie>) => {
     getMovie(movie.id)
     if (!videoKey) setOpen(true)
     setOpen(true)
@@ -102,7 +101,16 @@ const App = () => {
         )}
 
         <Routes>
-          <Route path="/" element={<Movies movies={movies} viewTrailer={viewTrailer} closeCard={closeCard} observer={observer}/>} />
+          <Route path="/" element={
+            <Movies
+                movies={movies}
+                viewTrailer={viewTrailer}
+                closeCard={closeCard}
+                observerRef={observerRef}
+                isLoading={fetchStatus === 'loading'}
+                currentPage={currentPage}
+            />
+          } />
           <Route path="/starred" element={<Starred viewTrailer={viewTrailer} />} />
           <Route path="/watch-later" element={<WatchLater viewTrailer={viewTrailer} />} />
           <Route path="*" element={<h1 className="not-found">Page Not Found</h1>} />

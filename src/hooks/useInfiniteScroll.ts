@@ -6,45 +6,62 @@ type FetchFunction<T> = (url: string) => Promise<T> | void;
 
 export const useInfiniteScroll = (fetchData, isLoading) => {
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const observer = useRef<IntersectionObserver>();
+    const observerRef = useRef<HTMLDivElement>(null);
     const dispatch = useAppDispatch()
 console.log("currentPage :", currentPage)
-    const debouncedFetchDataPage = useCallback(
-        (url: string) => dispatch(fetchData(url)),
+
+    const debouncedFetchDataPage = useCallback(debounce(
+        (url: string) => dispatch(fetchData(url)), 1000),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [fetchData]
     );
-    console.log("fetchData :", fetchData.pending)
 
-    const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const handleObserver = useCallback(throttle((entries: IntersectionObserverEntry[]) => {
         return entries.forEach((entry) => {
             console.log("entry.isIntersecting :", entry.isIntersecting)
-            console.log("fetchData.fetchStatus :",fetchData.fetchStatus)
+            console.log("isLoading :", isLoading)
+            // debugger
             if (entry.isIntersecting && (isLoading && isLoading !== 'loading')) {
                 setCurrentPage((prev) => prev + 1);
+                /*const scrollTop = window.innerHeight / 2
+                console.log("window ", window)
+                window.scrollTo({
+                    top: scrollTop,
+                    left: 0,
+                    behavior: 'smooth'
+                });*/
             }
-        });
-    }, [fetchData?.fetchStatus]);
+        })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, 2000), [isLoading]);
 
 
     useEffect(() => {
-        observer.current = new IntersectionObserver(handleObserver, {
+        const iobserver = new IntersectionObserver(handleObserver, {
             root: null,
             rootMargin: "0px",
             threshold: 1.0,
         });
+        //debugger
+        const endOfList = document.querySelector(`#end-of-movies-list-${currentPage}`);
+        const prevEndOfList = document.querySelector(`#end-of-movies-list-${currentPage - 1}`);
+        const observerCurrent = observerRef.current;
 
-        const endOfList = document.querySelector("#end-of-movies-list");
+        if (observerCurrent && endOfList) {
+            iobserver.observe(endOfList);
+        }
 
-        if (observer.current && endOfList) {
-            observer.current.observe(endOfList);
+        if (prevEndOfList) {
+            prevEndOfList.scrollIntoView({ behavior: "smooth" });
         }
 
         return () => {
-            if (observer.current) {
-                observer.current?.disconnect()
+            // debugger
+            if (observerCurrent) {
+                iobserver.unobserve(observerCurrent);
             }
         };
     }, [handleObserver]);
 
-    return [debouncedFetchDataPage, currentPage, observer];
+    return [debouncedFetchDataPage, currentPage, observerRef];
 };
