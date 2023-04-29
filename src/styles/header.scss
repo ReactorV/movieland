@@ -1,4 +1,4 @@
-header {
+.header {
     position: fixed;
     z-index: 999;
     width: 100%;
@@ -8,9 +8,10 @@ header {
     background: rgba(0, 8, 81, 0.8);
     border: 1px solid transparent;
     border-radius: 0;
+    display: flex;
+    justify-content: space-between;
 
     .input-group {
-      float: right;
       width: 200px;
       margin: 0.7rem 0 0;
 
@@ -35,7 +36,6 @@ header {
 
     nav {
       position: relative;
-      float: right;
       margin: 0.5rem 1rem 0;
 
       a {
@@ -109,5 +109,8 @@ header {
         color: #fff;
       }
     }    
-    
+
+  .header-right {
+    display: flex;
   }
+}

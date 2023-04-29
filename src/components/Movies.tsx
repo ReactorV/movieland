@@ -1,38 +1,43 @@
 import { memo, RefObject } from 'react'
-import Movie from './Movie'
+
+import { Movie } from './Movie'
+import { Loader } from './Loader'
+import { IMovie } from '../types'
 import '../styles/movies.scss'
-import { IMovie } from "../types";
 
 interface Props {
-    movies: IMovie[],
-    viewTrailer: (movie: Partial<IMovie>) => void
-    closeCard: () => void
-    observerRef: RefObject<HTMLDivElement>
-    isLoading: boolean
-    currentPage: number
+  movies: IMovie[]
+  viewTrailer: (movie: Partial<IMovie>) => void
+  closeCard: () => void
+  observerRef: RefObject<HTMLDivElement>
+  isLoading: boolean
+  currentPage: number
+  errorMessage: string
 }
 
-const Movies = memo(({ movies, viewTrailer, closeCard, observerRef, isLoading, currentPage }: Props) => {
-
+export const Movies = memo(
+  ({ movies, viewTrailer, closeCard, observerRef, isLoading, currentPage, errorMessage }: Props) => {
     return (
-        <div data-testid="movies" style={{ paddingBottom: '60px' }}>
-            {movies.map((movie, index) => {
-                const isLastMovie = index === movies.length - 1;
+      <div data-testid="movies" style={{ paddingBottom: '60px' }}>
+        {movies.map((movie, index) => {
+          const isLastMovie = index === movies.length - 1
 
-                return (
-                    <Movie 
-                        movie={movie} 
-                        key={movie.id}
-                        viewTrailer={viewTrailer}
-                        closeCard={closeCard}
-                        observerRef={isLastMovie ? observerRef : null}
-                        id={isLastMovie ? `end-of-movies-list-${currentPage}` : String(index)}
-                    />
-                )
-            })}
-            {isLoading && <div>Loading...</div>}
-        </div>
+          return (
+            <Movie
+              movie={movie}
+              key={movie.id}
+              viewTrailer={viewTrailer}
+              closeCard={closeCard}
+              observerRef={isLastMovie ? observerRef : null}
+              id={isLastMovie ? `end-of-movies-list-${currentPage}` : String(index)}
+            />
+          )
+        })}
+        {errorMessage && <div>{errorMessage}</div>}
+        {isLoading && <Loader />}
+      </div>
     )
-})
+  }
+)
 
-export default Movies
+Movies.displayName = 'Movies'

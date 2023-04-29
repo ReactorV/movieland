@@ -1,56 +1,43 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Routes, Route, createSearchParams, useSearchParams, useNavigate } from 'react-router-dom'
+import Popup from 'reactjs-popup'
 
-import Popup from 'reactjs-popup';
-import 'reactjs-popup/dist/index.css'
 import { fetchMovies } from './data/moviesSlice'
 import { getMoviesSelector } from './data/selectors'
-import { useAppDispatch, useAppSelector } from './data/hooks'
+import { useAppSelector } from './data/hooks'
 import { ENDPOINT_SEARCH, ENDPOINT_DISCOVER, ENDPOINT, API_KEY } from './constants'
-import Header from './components/Header'
-import Movies from './components/Movies'
+import { Header } from './components/Header'
+import { Movies } from './components/Movies'
 import Starred from './components/Starred'
 import WatchLater from './components/WatchLater'
 import YouTubePlayer from './components/YoutubePlayer'
-import { useInfiniteScroll } from './hooks';
+import { useInfiniteScroll } from './hooks'
+import { IMovie } from './types'
+
 import './app.scss'
-import {IMovie} from "./types";
+import 'reactjs-popup/dist/index.css'
 
 const App = () => {
-  const { movies, fetchStatus } = useAppSelector(getMoviesSelector)
-  const dispatch = useAppDispatch()
-console.log("movies :", movies)
+  const { movies, fetchStatus, errorMessage } = useAppSelector(getMoviesSelector)
+
   const [videoKey, setVideoKey] = useState(null)
   const [isOpen, setOpen] = useState(false)
 
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const searchQuery = searchParams.get('search')
 
-  const [debouncedFetchMovies, currentPage, observerRef] = useInfiniteScroll(fetchMovies, fetchStatus);
-  console.log("movies :", movies);
-  console.log("currentPage :", currentPage);
+  const searchQuery = searchParams.get('search') || ''
+  console.log('searchParams search:', searchQuery)
+  const [debouncedFetchMovies, currentPage, observerRef] = useInfiniteScroll(fetchMovies, fetchStatus)
+  console.log('movies :', movies)
+  console.log('currentPage :', currentPage)
   const handleCloseClick = () => setOpen(false)
 
   const closeCard = () => {}
 
-  const getSearchResults = (query) => {
-    if (query !== '') {
-      dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=`+query))
-      setSearchParams(createSearchParams({ search: query }))
-    } else {
-      dispatch(fetchMovies(ENDPOINT_DISCOVER))
-      setSearchParams()
-    }
-  }
-
-  const searchMovies = (query) => {
-    navigate('/')
-    getSearchResults(query)
-  }
-
   const viewTrailer = (movie: Partial<IMovie>) => {
     getMovie(movie.id)
+
     if (!videoKey) setOpen(true)
     setOpen(true)
   }
@@ -61,24 +48,39 @@ console.log("movies :", movies)
     setVideoKey(null)
     const videoData = await fetch(URL)
       .then((response) => response.json())
-      .catch(error => console.error(error))
+      .catch((error) => console.error(error))
 
     if (videoData?.videos?.results.length) {
-      const trailer = videoData.videos.results.find(vid => vid.type === 'Trailer')
+      const trailer = videoData.videos.results.find((vid) => vid.type === 'Trailer')
       setVideoKey(trailer ? trailer.key : videoData.videos.results[0].key)
     }
   }
 
+  const searchMovies = useCallback(
+    (query) => {
+      // debugger
+      navigate('/')
+
+      if (query !== '') {
+        debouncedFetchMovies(`${ENDPOINT_SEARCH}&query=${query}`)
+        setSearchParams(createSearchParams({ search: query }))
+      } else {
+        debouncedFetchMovies(`${ENDPOINT_DISCOVER}&page=${currentPage}`)
+        setSearchParams()
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [navigate, currentPage, debouncedFetchMovies]
+  )
+
   useEffect(() => {
     if (searchQuery) {
-      // @ts-ignore
       debouncedFetchMovies(`${ENDPOINT_SEARCH}&query=${searchQuery}&page=${currentPage}`)
     } else {
-      // @ts-ignore
       debouncedFetchMovies(`${ENDPOINT_DISCOVER}&page=${currentPage}`)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, currentPage])
+  }, [currentPage, debouncedFetchMovies])
 
   return (
     <div className="App">
@@ -86,31 +88,35 @@ console.log("movies :", movies)
 
       <div className="container">
         {isOpen && (
-            <Popup open={isOpen} closeOnDocumentClick={false} onClose={handleCloseClick}>
-              <div className="player-container">
-                <button className="btn-close" onClick={handleCloseClick} />
-                {videoKey ? (
-                    <YouTubePlayer videoKey={videoKey} />
-                ) : (
-                  <div className="player-plug">
-                    <h6>No trailer available. Try another movie</h6>
-                  </div>
-                )}
-              </div>
-            </Popup>
+          <Popup open={isOpen} closeOnDocumentClick={false} onClose={handleCloseClick}>
+            <div className="player-container">
+              <button className="btn-close" onClick={handleCloseClick} />
+              {videoKey ? (
+                <YouTubePlayer videoKey={videoKey} />
+              ) : (
+                <div className="player-plug">
+                  <h6>No trailer available. Try another movie</h6>
+                </div>
+              )}
+            </div>
+          </Popup>
         )}
 
         <Routes>
-          <Route path="/" element={
-            <Movies
+          <Route
+            path="/"
+            element={
+              <Movies
                 movies={movies}
                 viewTrailer={viewTrailer}
                 closeCard={closeCard}
                 observerRef={observerRef}
                 isLoading={fetchStatus === 'loading'}
                 currentPage={currentPage}
-            />
-          } />
+                errorMessage={errorMessage}
+              />
+            }
+          />
           <Route path="/starred" element={<Starred viewTrailer={viewTrailer} />} />
           <Route path="/watch-later" element={<WatchLater viewTrailer={viewTrailer} />} />
           <Route path="*" element={<h1 className="not-found">Page Not Found</h1>} />

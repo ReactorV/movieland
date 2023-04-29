@@ -1,67 +1,54 @@
-import { useEffect, useState, useRef, useCallback } from "react";
-import { throttle, debounce } from "lodash";
-import { useAppDispatch } from "../data/hooks";
+import { useEffect, useState, useRef, useCallback, RefObject } from 'react'
+import { throttle, debounce } from 'lodash'
+import { useAppDispatch } from '../data/hooks'
 
-type FetchFunction<T> = (url: string) => Promise<T> | void;
+export const useInfiniteScroll = (
+  fetchData,
+  isLoading
+): [(url: string) => () => void, number, RefObject<HTMLDivElement>] => {
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const observerRef = useRef<HTMLDivElement>(null)
+  const dispatch = useAppDispatch()
 
-export const useInfiniteScroll = (fetchData, isLoading) => {
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const observerRef = useRef<HTMLDivElement>(null);
-    const dispatch = useAppDispatch()
-console.log("currentPage :", currentPage)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedFetchDataPage = useCallback(
+    debounce((url: string) => dispatch(fetchData(url)), 1000),
+    [fetchData]
+  )
 
-    const debouncedFetchDataPage = useCallback(debounce(
-        (url: string) => dispatch(fetchData(url)), 1000),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [fetchData]
-    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleObserver = useCallback(
+    throttle((entries: IntersectionObserverEntry[]) => {
+      const firstElement = entries[0]
 
-    const handleObserver = useCallback(throttle((entries: IntersectionObserverEntry[]) => {
-        return entries.forEach((entry) => {
-            console.log("entry.isIntersecting :", entry.isIntersecting)
-            console.log("isLoading :", isLoading)
-            // debugger
-            if (entry.isIntersecting && (isLoading && isLoading !== 'loading')) {
-                setCurrentPage((prev) => prev + 1);
-                /*const scrollTop = window.innerHeight / 2
-                console.log("window ", window)
-                window.scrollTo({
-                    top: scrollTop,
-                    left: 0,
-                    behavior: 'smooth'
-                });*/
-            }
-        })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, 2000), [isLoading]);
+      if (firstElement.isIntersecting && isLoading && isLoading !== 'loading') {
+        setCurrentPage((prev) => prev + 1)
+        dispatch(fetchData.pending())
+      }
+    }, 500),
+    [isLoading]
+  )
 
+  useEffect(() => {
+    const intersectionObserver = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: '0px',
+      threshold: 1.0,
+    })
 
-    useEffect(() => {
-        const iobserver = new IntersectionObserver(handleObserver, {
-            root: null,
-            rootMargin: "0px",
-            threshold: 1.0,
-        });
-        //debugger
-        const endOfList = document.querySelector(`#end-of-movies-list-${currentPage}`);
-        const prevEndOfList = document.querySelector(`#end-of-movies-list-${currentPage - 1}`);
-        const observerCurrent = observerRef.current;
+    const lastElementRef = observerRef.current
 
-        if (observerCurrent && endOfList) {
-            iobserver.observe(endOfList);
-        }
+    if (lastElementRef) {
+      intersectionObserver.observe(lastElementRef)
+    }
 
-        if (prevEndOfList) {
-            prevEndOfList.scrollIntoView({ behavior: "smooth" });
-        }
+    return () => {
+      if (lastElementRef) {
+        intersectionObserver.unobserve(lastElementRef)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleObserver])
 
-        return () => {
-            // debugger
-            if (observerCurrent) {
-                iobserver.unobserve(observerCurrent);
-            }
-        };
-    }, [handleObserver]);
-
-    return [debouncedFetchDataPage, currentPage, observerRef];
-};
+  return [debouncedFetchDataPage, currentPage, observerRef]
+}
