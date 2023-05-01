@@ -25,12 +25,9 @@ const App = () => {
 
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-
   const searchQuery = searchParams.get('search') || ''
-  console.log('searchParams search:', searchQuery)
+
   const [debouncedFetchMovies, currentPage, observerRef] = useInfiniteScroll(fetchMovies, fetchStatus)
-  console.log('movies :', movies)
-  console.log('currentPage :', currentPage)
   const handleCloseClick = () => setOpen(false)
 
   const closeCard = () => {}
@@ -58,7 +55,6 @@ const App = () => {
 
   const searchMovies = useCallback(
     (query) => {
-      // debugger
       navigate('/')
 
       if (query !== '') {
@@ -69,8 +65,7 @@ const App = () => {
         setSearchParams()
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    },
-    [navigate, currentPage, debouncedFetchMovies]
+    },[navigate, currentPage, debouncedFetchMovies]
   )
 
   useEffect(() => {
@@ -112,7 +107,6 @@ const App = () => {
                 closeCard={closeCard}
                 observerRef={observerRef}
                 isLoading={fetchStatus === 'loading'}
-                currentPage={currentPage}
                 errorMessage={errorMessage}
               />
             }

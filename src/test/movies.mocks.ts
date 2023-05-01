@@ -1,4 +1,5 @@
-export const moviesMock = [
+import { IMovie } from '../types'
+export const moviesMock: Partial<IMovie>[] = [
   {
     id: '27205',
     overview: 'Cobb, a skilled thief who commits corporate espionage by infiltrating...',

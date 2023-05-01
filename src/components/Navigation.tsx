@@ -2,10 +2,12 @@ import { memo } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useAppSelector } from '../data/hooks'
+import { getStarredMovies } from "../data/selectors";
+
 import '../styles/header.scss'
 
 export const Navigation = memo(() => {
-  const { starredMovies } = useAppSelector((state) => state.starred)
+  const { starredMovies } = useAppSelector(getStarredMovies)
 
   return (
     <nav>

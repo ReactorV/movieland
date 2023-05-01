@@ -51,6 +51,7 @@
     "@types/react-dom": "^18.0.11",
     "@types/react-redux": "^7.1.25",
     "@types/react-router-dom": "^5.3.3",
+    "intersection-observer": "^0.12.2",
     "prettier": "2.8.7",
     "typescript": "^5.0.4"
   }

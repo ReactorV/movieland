@@ -11,6 +11,8 @@ const WatchLater = ({ viewTrailer }) => {
   const watchLater = useAppSelector(getWatchLaterMovies)
   const dispatch = useAppDispatch()
 
+  const handleRemoveAllWatchLaterClick = () => dispatch(removeAllWatchLater())
+
   return (
     <div className="starred" data-testid="watch-later-div">
       {watchLater.watchLaterMovies.length > 0 && (
@@ -23,7 +25,7 @@ const WatchLater = ({ viewTrailer }) => {
           </div>
 
           <footer className="text-center">
-            <button className="btn btn-primary" onClick={() => dispatch(removeAllWatchLater())}>
+            <button className="btn btn-primary" onClick={handleRemoveAllWatchLaterClick}>
               Empty list
             </button>
           </footer>

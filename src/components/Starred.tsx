@@ -11,6 +11,8 @@ const Starred = ({ viewTrailer }) => {
   const starred = useAppSelector(getStarredMovies)
   const dispatch = useAppDispatch()
 
+  const handleClearAllStarredClick = () => dispatch(clearAllStarred())
+
   return (
     <div className="starred" data-testid="starred">
       {starred.starredMovies.length > 0 && (
@@ -23,7 +25,7 @@ const Starred = ({ viewTrailer }) => {
           </div>
 
           <footer className="text-center">
-            <button className="btn btn-primary" onClick={() => dispatch(clearAllStarred())}>
+            <button className="btn btn-primary" onClick={handleClearAllStarredClick}>
               Remove all starred
             </button>
           </footer>

@@ -1,14 +1,16 @@
-import moviesSlice, { fetchMovies } from '../data/moviesSlice'
+import { fetchMovies, moviesSliceReducer } from '../data/moviesSlice'
 import { moviesMock } from './movies.mocks'
+import { IMoviesState } from '../types'
 
 describe('MovieSlice test', () => {
   it('should set loading true while action is pending', () => {
     const action = { type: fetchMovies.pending }
-    const initialState = moviesSlice.reducer(
+    const initialState = moviesSliceReducer(
       {
         movies: [],
         fetchStatus: '',
-      },
+          errorMessage: '',
+      } as IMoviesState,
       action
     )
     expect(action).toEqual({ type: fetchMovies.pending })
@@ -17,13 +19,14 @@ describe('MovieSlice test', () => {
   it('should return payload when action is fulfilled', () => {
     const action = {
       type: fetchMovies.fulfilled,
-      payload: moviesMock,
+      payload: { results: moviesMock },
     }
-    const initialState = moviesSlice.reducer(
+    const initialState = moviesSliceReducer(
       {
         movies: [],
         fetchStatus: '',
-      },
+          errorMessage: '',
+      } as IMoviesState,
       action
     )
     expect(action.payload).toBeTruthy()
@@ -31,11 +34,12 @@ describe('MovieSlice test', () => {
 
   it('should set error when action is rejected', () => {
     const action = { type: fetchMovies.rejected }
-    const initialState = moviesSlice.reducer(
+    const initialState = moviesSliceReducer(
       {
         movies: [],
         fetchStatus: '',
-      },
+        errorMessage: '',
+      } as IMoviesState,
       action
     )
     expect(action).toEqual({ type: fetchMovies.rejected })

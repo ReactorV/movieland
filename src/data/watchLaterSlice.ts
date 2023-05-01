@@ -13,7 +13,7 @@ const watchLaterSlice = createSlice({
     addToWatchLater: (state, action: PayloadAction<Partial<IMovie>>) => {
       state.watchLaterMovies = [action.payload, ...state.watchLaterMovies]
     },
-    removeFromWatchLater: (state, action) => {
+    removeFromWatchLater: (state, action: PayloadAction<Partial<IMovie>>) => {
       const indexOfId = state.watchLaterMovies.findIndex((key) => key.id === action.payload.id)
       state.watchLaterMovies.splice(indexOfId, 1)
     },

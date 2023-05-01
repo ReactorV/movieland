@@ -11,14 +11,13 @@ interface Props {
   closeCard: () => void
   observerRef: RefObject<HTMLDivElement>
   isLoading: boolean
-  currentPage: number
   errorMessage: string
 }
 
 export const Movies = memo(
-  ({ movies, viewTrailer, closeCard, observerRef, isLoading, currentPage, errorMessage }: Props) => {
+  ({ movies, viewTrailer, closeCard, observerRef, isLoading, errorMessage }: Props) => {
     return (
-      <div data-testid="movies" style={{ paddingBottom: '60px' }}>
+      <div className="movies" data-testid="movies">
         {movies.map((movie, index) => {
           const isLastMovie = index === movies.length - 1
 
@@ -29,7 +28,6 @@ export const Movies = memo(
               viewTrailer={viewTrailer}
               closeCard={closeCard}
               observerRef={isLastMovie ? observerRef : null}
-              id={isLastMovie ? `end-of-movies-list-${currentPage}` : String(index)}
             />
           )
         })}
