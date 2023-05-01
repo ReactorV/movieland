@@ -9,7 +9,7 @@ describe('MovieSlice test', () => {
       {
         movies: [],
         fetchStatus: '',
-          errorMessage: '',
+        errorMessage: '',
       } as IMoviesState,
       action
     )
@@ -25,7 +25,7 @@ describe('MovieSlice test', () => {
       {
         movies: [],
         fetchStatus: '',
-          errorMessage: '',
+        errorMessage: '',
       } as IMoviesState,
       action
     )

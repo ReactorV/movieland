@@ -1,4 +1,9 @@
-import { watchLaterSliceReducer, addToWatchLater, removeFromWatchLater, removeAllWatchLater } from '../data/watchLaterSlice'
+import {
+  watchLaterSliceReducer,
+  addToWatchLater,
+  removeFromWatchLater,
+  removeAllWatchLater,
+} from '../data/watchLaterSlice'
 import { moviesMock } from './movies.mocks'
 
 describe('watchLaterSlice test', () => {

@@ -3,11 +3,11 @@ import userEvent from '@testing-library/user-event'
 import { renderWithProviders } from './utils'
 import App from '../App'
 
-it('movies starred and saved to watch later',  async () => {
+it('movies starred and saved to watch later', async () => {
   renderWithProviders(<App />)
 
   const res1 = await userEvent.type(screen.getByTestId('search-movies'), 'forrest gump')
-  console.log("res1 :", res1)
+  console.log('res1 :', res1)
   await waitFor(() => {
     expect(screen.getAllByText('Through the Eyes of Forrest Gump')[0]).toBeInTheDocument()
   })

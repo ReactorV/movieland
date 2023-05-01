@@ -65,7 +65,8 @@ const App = () => {
         setSearchParams()
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[navigate, currentPage, debouncedFetchMovies]
+    },
+    [navigate, currentPage, debouncedFetchMovies]
   )
 
   useEffect(() => {

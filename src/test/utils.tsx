@@ -12,9 +12,9 @@ export function renderWithProviders(
   ui,
   {
     preloadedState = {
-        movies: { movies: [],  fetchStatus: 'success', errorMessage: '' },
-        starred: { starredMovies: [] },
-        watchLater: { watchLaterMovies: [] }
+      movies: { movies: [], fetchStatus: 'success', errorMessage: '' },
+      starred: { starredMovies: [] },
+      watchLater: { watchLaterMovies: [] },
     },
     store = configureStore({
       reducer: {

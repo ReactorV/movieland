@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useAppSelector } from '../data/hooks'
-import { getStarredMovies } from "../data/selectors";
+import { getStarredMovies } from '../data/selectors'
 
 import '../styles/header.scss'
 
