@@ -32,12 +32,12 @@ const App = () => {
 
   const closeCard = () => {}
 
-  const viewTrailer = (movie: Partial<IMovie>) => {
-    getMovie(movie.id)
-
-    if (!videoKey) setOpen(true)
-    setOpen(true)
-  }
+  const viewTrailer = useCallback(
+    (movie: Partial<IMovie>) => {
+      getMovie(movie.id)
+    },
+    [videoKey]
+  )
 
   const getMovie = async (id) => {
     const URL = `${ENDPOINT}/movie/${id}?api_key=${API_KEY}&append_to_response=videos`
@@ -49,7 +49,9 @@ const App = () => {
 
     if (videoData?.videos?.results.length) {
       const trailer = videoData.videos.results.find((vid) => vid.type === 'Trailer')
-      setVideoKey(trailer ? trailer.key : videoData.videos.results[0].key)
+      const trailerKey = trailer ? trailer.key : videoData.videos.results[0].key
+
+      setVideoKey(trailerKey)
     }
   }
 
@@ -77,6 +79,12 @@ const App = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, debouncedFetchMovies])
+
+  useEffect(() => {
+    if (videoKey) {
+      setOpen(true)
+    }
+  }, [videoKey])
 
   return (
     <div className="App">

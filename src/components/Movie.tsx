@@ -61,7 +61,7 @@ export const Movie = memo(({ movie, viewTrailer, closeCard, observerRef }: Props
       })
     )
 
-  const handleRemoveFromWatchLaterClick = (movie) => dispatch(removeFromWatchLater(movie))
+  const handleRemoveFromWatchLaterClick = (movieId) => dispatch(removeFromWatchLater(movieId))
 
   return (
     <div className="wrapper col-3 col-sm-4 col-md-3 col-lg-3 col-xl-2" ref={observerRef}>
@@ -79,7 +79,7 @@ export const Movie = memo(({ movie, viewTrailer, closeCard, observerRef }: Props
             <WatchLaterButton
               isWatchLater={isWatchLater}
               onAddToWatchLater={() => handleAddToWatchLaterClick(movie)}
-              onRemoveFromWatchLater={() => handleRemoveFromWatchLaterClick(movie)}
+              onRemoveFromWatchLater={() => handleRemoveFromWatchLaterClick(movie.id)}
             />
             <button type="button" className="btn btn-dark" onClick={() => viewTrailer(movie)}>
               View Trailer
